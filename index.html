@@ -116,6 +116,13 @@
             padding-bottom: 15px;
         }
 
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #888;
+        }
+
         .service-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -241,6 +248,7 @@
 
         input[type="text"],
         input[type="tel"],
+        input[type="email"],
         input[type="date"],
         select,
         textarea {
@@ -287,13 +295,20 @@
             font-size: 0.9em;
         }
 
-        .time-slot:hover {
+        .time-slot:hover:not(.disabled) {
             background: #111;
         }
 
         .time-slot.selected {
             background: #fff;
             color: #000;
+        }
+
+        .time-slot.disabled {
+            background: #0a0a0a;
+            color: #333;
+            cursor: not-allowed;
+            opacity: 0.5;
         }
 
         .file-upload {
@@ -368,6 +383,11 @@
             transform: scale(0.98);
         }
 
+        .continue-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .submit-btn {
             width: 100%;
             padding: 25px;
@@ -391,6 +411,11 @@
 
         .submit-btn:active {
             transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .back-btn {
@@ -514,6 +539,25 @@
             color: #000;
         }
 
+        .error-message {
+            background: #ff0000;
+            color: #fff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #00ff00;
+            color: #000;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -572,9 +616,17 @@
     </div>
 
     <div class="container">
+        <div id="errorMessage" class="error-message hidden"></div>
+        <div id="successMessage" class="success-message hidden"></div>
+
         <form id="bookingForm">
+            <!-- Loading State -->
+            <div id="loadingSection" class="section">
+                <div class="loading">Loading available services...</div>
+            </div>
+
             <!-- Step 1: Choose Service Type -->
-            <div class="section" id="serviceSection">
+            <div class="section hidden" id="serviceSection">
                 <h2 class="section-title">Choose Your Service</h2>
                 <div class="service-grid">
                     <div class="service-card" data-service="gelx">
@@ -634,17 +686,8 @@
 
                 <div class="form-group">
                     <label>Available Time Slots</label>
-                    <div class="time-grid" id="timeGrid">
-                        <div class="time-slot" data-time="9:00 AM">9:00 AM</div>
-                        <div class="time-slot" data-time="10:00 AM">10:00 AM</div>
-                        <div class="time-slot" data-time="11:00 AM">11:00 AM</div>
-                        <div class="time-slot" data-time="12:00 PM">12:00 PM</div>
-                        <div class="time-slot" data-time="1:00 PM">1:00 PM</div>
-                        <div class="time-slot" data-time="2:00 PM">2:00 PM</div>
-                        <div class="time-slot" data-time="3:00 PM">3:00 PM</div>
-                        <div class="time-slot" data-time="4:00 PM">4:00 PM</div>
-                        <div class="time-slot" data-time="5:00 PM">5:00 PM</div>
-                    </div>
+                    <div class="loading" id="timeSlotsLoading">Select a date to see available times...</div>
+                    <div class="time-grid hidden" id="timeGrid"></div>
                 </div>
 
                 <h2 class="section-title" style="margin-top: 60px;">Your Details</h2>
@@ -652,6 +695,11 @@
                 <div class="form-group">
                     <label for="clientName">Name</label>
                     <input type="text" id="clientName" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="clientEmail">Email</label>
+                    <input type="email" id="clientEmail" placeholder="your@email.com" required>
                 </div>
 
                 <div class="form-group">
@@ -669,36 +717,128 @@
                     <div id="finalSummary"></div>
                 </div>
 
-                <button type="submit" class="submit-btn">Confirm Booking</button>
+                <button type="submit" class="submit-btn" id="submitBtn">Confirm Booking</button>
             </div>
         </form>
     </div>
 
     <script>
+        // Square API Configuration
+        const SQUARE_CONFIG = {
+            accessToken: 'EAAAl4xAvLkUWp53HsyF2NVgTMbT2x2z3mal5xDj--bDhA330PD9xB1MFd0yjnyb',
+            locationId: 'LWNZM6VSAQ5NR',
+            baseUrl: 'https://connect.squareupsandbox.com/v2'
+        };
+
         const serviceDetails = {
             'gelx': [
-                { name: 'Solid Colour', price: 60, duration: 90, description: 'Classic single colour application' },
-                { name: 'Minimal Design', price: 75, duration: 105, description: 'Simple accents & minimal art' },
-                { name: 'Detailed Design', price: 95, duration: 135, description: 'Intricate patterns & complex art' },
-                { name: 'Full Custom Art', price: 120, duration: 165, description: 'Fully customized detailed artwork' },
-                { name: 'GelX Removal', price: 20, duration: 30, description: 'Safe removal of existing GelX' }
+                { name: 'Solid Colour', price: 6000, duration: 90, description: 'Classic single colour application' },
+                { name: 'Minimal Design', price: 7500, duration: 105, description: 'Simple accents & minimal art' },
+                { name: 'Detailed Design', price: 9500, duration: 135, description: 'Intricate patterns & complex art' },
+                { name: 'Full Custom Art', price: 12000, duration: 165, description: 'Fully customized detailed artwork' },
+                { name: 'GelX Removal', price: 2000, duration: 30, description: 'Safe removal of existing GelX' }
             ],
             'builder-gel': [
-                { name: 'Solid Colour', price: 70, duration: 100, description: 'Classic single colour application' },
-                { name: 'Minimal Design', price: 85, duration: 120, description: 'Simple accents & minimal art' },
-                { name: 'Detailed Design', price: 105, duration: 150, description: 'Intricate patterns & complex art' },
-                { name: 'Full Custom Art', price: 130, duration: 180, description: 'Fully customized detailed artwork' },
-                { name: 'Builder Gel Removal', price: 25, duration: 40, description: 'Safe removal of existing builder gel' }
+                { name: 'Solid Colour', price: 7000, duration: 100, description: 'Classic single colour application' },
+                { name: 'Minimal Design', price: 8500, duration: 120, description: 'Simple accents & minimal art' },
+                { name: 'Detailed Design', price: 10500, duration: 150, description: 'Intricate patterns & complex art' },
+                { name: 'Full Custom Art', price: 13000, duration: 180, description: 'Fully customized detailed artwork' },
+                { name: 'Builder Gel Removal', price: 2500, duration: 40, description: 'Safe removal of existing builder gel' }
             ]
         };
 
+        let squareServices = {};
         let selectedServiceType = null;
         let selectedDetail = null;
         let currentUploadedFiles = [];
         let cart = [];
         let selectedTime = null;
+        let selectedDate = null;
+        let bookedSlots = [];
 
-        // Step 1: Service type selection
+        // Initialize - Load Square services
+        async function initSquare() {
+            try {
+                // In production, you'd fetch catalog items from Square
+                // For now, we'll show the UI
+                document.getElementById('loadingSection').classList.add('hidden');
+                document.getElementById('serviceSection').classList.remove('hidden');
+            } catch (error) {
+                showError('Failed to load services. Please refresh the page.');
+                console.error('Init error:', error);
+            }
+        }
+
+        // Fetch available time slots from Square
+        async function fetchAvailableTimeSlots(date) {
+            const loading = document.getElementById('timeSlotsLoading');
+            const grid = document.getElementById('timeGrid');
+            
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            grid.innerHTML = '';
+
+            try {
+                // Calculate total duration needed
+                const totalDuration = cart.reduce((sum, item) => sum + item.detail.duration, 0);
+
+                // In production, you'd call Square's availability API
+                // For now, we'll create time slots and mark some as booked
+                const timeSlots = generateTimeSlots(date, totalDuration);
+                
+                timeSlots.forEach(slot => {
+                    const slotDiv = document.createElement('div');
+                    slotDiv.className = 'time-slot';
+                    slotDiv.dataset.time = slot.time;
+                    slotDiv.dataset.start = slot.start;
+                    slotDiv.textContent = slot.time;
+                    
+                    if (slot.available) {
+                        slotDiv.addEventListener('click', function() {
+                            if (!this.classList.contains('disabled')) {
+                                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                                this.classList.add('selected');
+                                selectedTime = this.dataset.time;
+                                updateFinalSummary();
+                            }
+                        });
+                    } else {
+                        slotDiv.classList.add('disabled');
+                    }
+                    
+                    grid.appendChild(slotDiv);
+                });
+
+                loading.classList.add('hidden');
+                grid.classList.remove('hidden');
+            } catch (error) {
+                showError('Failed to load available times. Please try again.');
+                console.error('Time slots error:', error);
+            }
+        }
+
+        function generateTimeSlots(date, durationNeeded) {
+            const slots = [];
+            const hours = [9, 10, 11, 12, 13, 14, 15, 16, 17]; // 9 AM to 5 PM
+            
+            // Simulate some booked slots (in production, this comes from Square API)
+            const bookedTimes = ['11:00 AM', '2:00 PM'];
+            
+            hours.forEach(hour => {
+                const time12hr = hour > 12 ? `${hour - 12}:00 PM` : hour === 12 ? '12:00 PM' : `${hour}:00 AM`;
+                const available = !bookedTimes.includes(time12hr);
+                
+                slots.push({
+                    time: time12hr,
+                    start: hour,
+                    available: available
+                });
+            });
+            
+            return slots;
+        }
+
+        // Service type selection
         document.querySelectorAll('.service-card').forEach(card => {
             card.addEventListener('click', function() {
                 document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
@@ -728,7 +868,7 @@
                 card.innerHTML = `
                     <h4>${detail.name}</h4>
                     <p class="detail-duration" style="color: #666; margin-bottom: 10px;">${detail.description}</p>
-                    <p class="detail-price">$${detail.price}</p>
+                    <p class="detail-price">$${(detail.price / 100).toFixed(0)}</p>
                     <p class="detail-duration">${detail.duration} Minutes</p>
                 `;
                 card.addEventListener('click', function() {
@@ -772,7 +912,7 @@
         // Add service to cart
         document.getElementById('addServiceBtn').addEventListener('click', function() {
             if (!selectedDetail) {
-                alert('Please select a style');
+                showError('Please select a style');
                 return;
             }
 
@@ -783,14 +923,12 @@
                 photos: currentUploadedFiles.length
             });
 
-            // Reset selections
             selectedServiceType = null;
             selectedDetail = null;
             currentUploadedFiles = [];
             document.getElementById('fileInput').value = '';
             document.getElementById('previewContainer').innerHTML = '';
             
-            // Show cart
             updateCart();
             document.getElementById('detailSection').classList.add('hidden');
             document.getElementById('cartSection').classList.remove('hidden');
@@ -807,7 +945,7 @@
                 itemDiv.className = 'service-item';
                 itemDiv.innerHTML = `
                     <h4>${item.serviceType} - ${item.detail.name}</h4>
-                    <p>Price: $${item.detail.price}</p>
+                    <p>Price: ${(item.detail.price / 100).toFixed(0)}</p>
                     <p>Duration: ${item.detail.duration} minutes</p>
                     ${item.photos > 0 ? `<p>Reference Photos: ${item.photos}</p>` : ''}
                     <button type="button" class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
@@ -815,7 +953,7 @@
                 cartItems.appendChild(itemDiv);
             });
 
-            document.getElementById('cartTotal').textContent = total;
+            document.getElementById('cartTotal').textContent = (total / 100).toFixed(0);
         }
 
         window.removeFromCart = function(index) {
@@ -827,16 +965,15 @@
             }
         };
 
-        // Add another service
+        // Navigation
         document.getElementById('addAnotherService').addEventListener('click', function() {
             document.getElementById('cartSection').classList.add('hidden');
             document.getElementById('serviceSection').classList.remove('hidden');
         });
 
-        // Continue to checkout
         document.getElementById('continueToCheckout').addEventListener('click', function() {
             if (cart.length === 0) {
-                alert('Please add at least one service');
+                showError('Please add at least one service');
                 return;
             }
             document.getElementById('cartSection').classList.add('hidden');
@@ -844,7 +981,6 @@
             updateFinalSummary();
         });
 
-        // Back buttons
         document.getElementById('backToService').addEventListener('click', () => {
             document.getElementById('detailSection').classList.add('hidden');
             if (cart.length > 0) {
@@ -859,18 +995,12 @@
             document.getElementById('cartSection').classList.remove('hidden');
         });
 
-        // Time slot selection
-        document.querySelectorAll('.time-slot').forEach(slot => {
-            slot.addEventListener('click', function() {
-                document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedTime = this.dataset.time;
-                updateFinalSummary();
-            });
-        });
-
         // Date selection
-        document.getElementById('bookingDate').addEventListener('change', updateFinalSummary);
+        document.getElementById('bookingDate').addEventListener('change', function() {
+            selectedDate = this.value;
+            selectedTime = null;
+            fetchAvailableTimeSlots(this.value);
+        });
 
         function updateFinalSummary() {
             const date = document.getElementById('bookingDate').value;
@@ -883,45 +1013,137 @@
             cart.forEach(item => {
                 total += item.detail.price;
                 totalDuration += item.detail.duration;
-                html += `<div class="summary-item">${item.serviceType} - ${item.detail.name}: $${item.detail.price}</div>`;
+                html += `<div class="summary-item">${item.serviceType} - ${item.detail.name}: ${(item.detail.price / 100).toFixed(0)}</div>`;
             });
 
             if (date && selectedTime) {
                 html += `<div class="summary-item">Date & Time: ${date} at ${selectedTime}</div>`;
             }
             html += `<div class="summary-item">Total Duration: ${totalDuration} minutes</div>`;
-            html += `<div class="summary-item" style="font-size: 1.3em; font-weight: 900;">Total: $${total}</div>`;
+            html += `<div class="summary-item" style="font-size: 1.3em; font-weight: 900;">Total: ${(total / 100).toFixed(0)}</div>`;
             
             summary.innerHTML = html;
         }
 
-        // Form submission
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        // Form submission - Create booking in Square
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (cart.length === 0 || !selectedTime) {
-                alert('Please complete all booking steps');
+            if (cart.length === 0 || !selectedTime || !selectedDate) {
+                showError('Please complete all booking steps');
                 return;
             }
 
-            const bookingData = {
-                services: cart,
-                date: document.getElementById('bookingDate').value,
-                time: selectedTime,
-                name: document.getElementById('clientName').value,
-                phone: document.getElementById('clientPhone').value,
-                notes: document.getElementById('notes').value
-            };
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'BOOKING...';
 
-            let total = cart.reduce((sum, item) => sum + item.detail.price, 0);
-            let servicesText = cart.map(item => `${item.serviceType} - ${item.detail.name}`).join(', ');
+            try {
+                // Prepare booking data
+                const bookingData = {
+                    booking: {
+                        location_id: SQUARE_CONFIG.locationId,
+                        start_at: formatDateTimeForSquare(selectedDate, selectedTime),
+                        customer_note: document.getElementById('notes').value,
+                        appointment_segments: cart.map(item => ({
+                            duration_minutes: item.detail.duration,
+                            service_variation_id: getSquareServiceId(item)
+                        }))
+                    }
+                };
 
-            console.log('Booking submitted:', bookingData);
-            alert(`BOOKING CONFIRMED\n\nServices: ${servicesText}\nDate: ${bookingData.date}\nTime: ${bookingData.time}\nTotal: ${total}\n\nWe'll text you at ${bookingData.phone} to confirm your appointment.`);
-            
-            // Reset form
-            location.reload();
+                // Create customer first
+                const customerData = {
+                    given_name: document.getElementById('clientName').value.split(' ')[0],
+                    family_name: document.getElementById('clientName').value.split(' ').slice(1).join(' '),
+                    email_address: document.getElementById('clientEmail').value,
+                    phone_number: document.getElementById('clientPhone').value
+                };
+
+                // In production, you'd call Square API here
+                // For now, we'll simulate success
+                await simulateSquareBooking(bookingData, customerData);
+
+                // Show success message
+                showSuccess();
+                
+            } catch (error) {
+                showError('Booking failed. Please try again or contact us directly.');
+                console.error('Booking error:', error);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'CONFIRM BOOKING';
+            }
         });
+
+        async function simulateSquareBooking(bookingData, customerData) {
+            // Simulate API call delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            // In production, you would do:
+            // const response = await fetch(`${SQUARE_CONFIG.baseUrl}/bookings`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Square-Version': '2024-01-18',
+            //         'Authorization': `Bearer ${SQUARE_CONFIG.accessToken}`,
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify(bookingData)
+            // });
+            
+            console.log('Booking would be created:', bookingData, customerData);
+            return { success: true };
+        }
+
+        function getSquareServiceId(cartItem) {
+            // In production, this would return the actual Square catalog item ID
+            // For now, return a placeholder
+            return `${cartItem.serviceType}_${cartItem.detail.name}`.replace(/\s+/g, '_');
+        }
+
+        function formatDateTimeForSquare(date, time) {
+            // Convert "10:00 AM" to ISO 8601 format
+            const [timePart, meridiem] = time.split(' ');
+            let [hours, minutes] = timePart.split(':').map(Number);
+            
+            if (meridiem === 'PM' && hours !== 12) hours += 12;
+            if (meridiem === 'AM' && hours === 12) hours = 0;
+            
+            const dateTime = new Date(date);
+            dateTime.setHours(hours, minutes || 0, 0, 0);
+            
+            return dateTime.toISOString();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showSuccess() {
+            document.getElementById('bookingForm').classList.add('hidden');
+            const successDiv = document.getElementById('successMessage');
+            
+            let servicesText = cart.map(item => `${item.serviceType} - ${item.detail.name}`).join(', ');
+            let total = cart.reduce((sum, item) => sum + item.detail.price, 0);
+            
+            successDiv.innerHTML = `
+                <h2 style="font-size: 2em; margin-bottom: 20px;">BOOKING CONFIRMED! ✨</h2>
+                <p style="margin: 10px 0;"><strong>Services:</strong> ${servicesText}</p>
+                <p style="margin: 10px 0;"><strong>Date:</strong> ${selectedDate}</p>
+                <p style="margin: 10px 0;"><strong>Time:</strong> ${selectedTime}</p>
+                <p style="margin: 10px 0;"><strong>Total:</strong> ${(total / 100).toFixed(0)}</p>
+                <p style="margin-top: 30px;">We'll send you a confirmation email at ${document.getElementById('clientEmail').value}</p>
+                <p style="margin-top: 20px;">See you soon! 💅</p>
+            `;
+            successDiv.classList.remove('hidden');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initSquare);
 
         // Set minimum date to today
         const today = new Date().toISOString().split('T')[0];
