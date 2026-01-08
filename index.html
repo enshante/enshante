@@ -914,4 +914,18 @@
             };
 
             let total = cart.reduce((sum, item) => sum + item.detail.price, 0);
-            let servicesText = cart.map(item => `${item.serviceType} -
+            let servicesText = cart.map(item => `${item.serviceType} - ${item.detail.name}`).join(', ');
+
+            console.log('Booking submitted:', bookingData);
+            alert(`BOOKING CONFIRMED\n\nServices: ${servicesText}\nDate: ${bookingData.date}\nTime: ${bookingData.time}\nTotal: ${total}\n\nWe'll text you at ${bookingData.phone} to confirm your appointment.`);
+            
+            // Reset form
+            location.reload();
+        });
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').setAttribute('min', today);
+    </script>
+</body>
+</html>
