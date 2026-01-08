@@ -102,6 +102,10 @@
             margin-bottom: 80px;
         }
 
+        .section.hidden {
+            display: none;
+        }
+
         .section-title {
             font-size: 2em;
             font-weight: 700;
@@ -114,7 +118,7 @@
 
         .service-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 0;
             border: 1px solid #222;
         }
@@ -122,10 +126,11 @@
         .service-card {
             background: #0a0a0a;
             border: 1px solid #222;
-            padding: 30px;
+            padding: 40px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            text-align: center;
         }
 
         .service-card:hover {
@@ -140,29 +145,80 @@
             border-color: #fff;
         }
 
-        .service-card.selected h3,
-        .service-card.selected .service-price,
-        .service-card.selected .service-duration {
+        .service-card.selected h3 {
             color: #000;
         }
 
         .service-card h3 {
             color: #fff;
-            font-size: 1.4em;
+            font-size: 2em;
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 700;
         }
 
-        .service-price {
+        .service-description {
+            color: #888;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .service-card.selected .service-description {
+            color: #333;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0;
+            border: 1px solid #222;
+        }
+
+        .detail-card {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .detail-card:hover {
+            background: #111;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .detail-card.selected {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .detail-card.selected h4,
+        .detail-card.selected .detail-price,
+        .detail-card.selected .detail-duration {
+            color: #000;
+        }
+
+        .detail-card h4 {
+            color: #fff;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .detail-price {
             color: #fff;
             font-size: 1.8em;
             font-weight: 900;
             margin: 15px 0;
         }
 
-        .service-duration {
+        .detail-duration {
             color: #888;
             font-size: 0.9em;
             text-transform: uppercase;
@@ -310,6 +366,27 @@
             transform: scale(0.98);
         }
 
+        .back-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #000;
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 0.9em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
         .summary {
             background: #0a0a0a;
             border: 2px solid #fff;
@@ -359,7 +436,8 @@
                 padding: 40px 20px;
             }
 
-            .service-grid {
+            .service-grid,
+            .detail-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -392,43 +470,31 @@
 
     <div class="container">
         <form id="bookingForm">
-            <div class="section" id="services">
-                <h2 class="section-title">Services</h2>
-                <div class="service-grid" id="serviceGrid">
-                    <div class="service-card" data-service="full-set" data-price="60" data-duration="120">
-                        <h3>Full Set</h3>
-                        <p class="service-price">$60</p>
-                        <p class="service-duration">2 Hours</p>
+            <!-- Step 1: Choose Service Type -->
+            <div class="section" id="serviceSection">
+                <h2 class="section-title">Choose Your Service</h2>
+                <div class="service-grid">
+                    <div class="service-card" data-service="gelx">
+                        <h3>GelX</h3>
+                        <p class="service-description">Soft gel extensions with a natural feel. Long-lasting, flexible, and perfect for any nail art design.</p>
                     </div>
-                    <div class="service-card" data-service="gel-manicure" data-price="45" data-duration="90">
-                        <h3>Gel Manicure</h3>
-                        <p class="service-price">$45</p>
-                        <p class="service-duration">1.5 Hours</p>
-                    </div>
-                    <div class="service-card" data-service="nail-art" data-price="80" data-duration="150">
-                        <h3>Custom Nail Art</h3>
-                        <p class="service-price">$80</p>
-                        <p class="service-duration">2.5 Hours</p>
-                    </div>
-                    <div class="service-card" data-service="fill" data-price="40" data-duration="75">
-                        <h3>Fill/Repair</h3>
-                        <p class="service-price">$40</p>
-                        <p class="service-duration">1 Hr 15 Min</p>
-                    </div>
-                    <div class="service-card" data-service="pedicure" data-price="50" data-duration="90">
-                        <h3>Pedicure</h3>
-                        <p class="service-price">$50</p>
-                        <p class="service-duration">1.5 Hours</p>
-                    </div>
-                    <div class="service-card" data-service="removal" data-price="20" data-duration="45">
-                        <h3>Removal</h3>
-                        <p class="service-price">$20</p>
-                        <p class="service-duration">45 Minutes</p>
+                    <div class="service-card" data-service="builder-gel">
+                        <h3>Builder Gel</h3>
+                        <p class="service-description">Strong, durable gel for structure and length. Ideal for those who need extra strength and durability.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="section" id="booking">
+            <!-- Step 2: Choose Detail Level -->
+            <div class="section hidden" id="detailSection">
+                <button type="button" class="back-btn" id="backToService">← Back to Services</button>
+                <h2 class="section-title" id="detailTitle">Choose Your Style</h2>
+                <div class="detail-grid" id="detailGrid"></div>
+            </div>
+
+            <!-- Step 3: Date & Time -->
+            <div class="section hidden" id="dateSection">
+                <button type="button" class="back-btn" id="backToDetail">← Back to Style</button>
                 <h2 class="section-title">Date & Time</h2>
                 
                 <div class="form-group">
@@ -452,7 +518,8 @@
                 </div>
             </div>
 
-            <div class="section">
+            <!-- Step 4: Reference Photos -->
+            <div class="section hidden" id="photoSection">
                 <h2 class="section-title">Reference Photos</h2>
                 <div class="file-upload" id="fileUpload">
                     <div class="upload-icon">📸</div>
@@ -462,7 +529,8 @@
                 <div class="preview-container" id="previewContainer"></div>
             </div>
 
-            <div class="section" id="contact">
+            <!-- Step 5: Contact Details -->
+            <div class="section hidden" id="contactSection">
                 <h2 class="section-title">Your Details</h2>
                 
                 <div class="form-group">
@@ -481,34 +549,111 @@
                 </div>
             </div>
 
-            <div class="summary" id="summary" style="display: none;">
+            <div class="summary hidden" id="summary">
                 <h3>Booking Summary</h3>
                 <div class="summary-item" id="summaryService"></div>
+                <div class="summary-item" id="summaryDetail"></div>
                 <div class="summary-item" id="summaryDateTime"></div>
                 <div class="summary-item" id="summaryTotal"></div>
             </div>
 
-            <button type="submit" class="submit-btn">Confirm Booking</button>
+            <button type="submit" class="submit-btn hidden" id="submitBtn">Confirm Booking</button>
         </form>
     </div>
 
     <script>
-        let selectedService = null;
+        const serviceDetails = {
+            'gelx': [
+                { name: 'Solid Colour', price: 60, duration: 90, description: 'Classic single colour application' },
+                { name: 'Minimal Design', price: 75, duration: 105, description: 'Simple accents & minimal art' },
+                { name: 'Detailed Design', price: 95, duration: 135, description: 'Intricate patterns & complex art' },
+                { name: 'Full Custom Art', price: 120, duration: 165, description: 'Fully customized detailed artwork' },
+                { name: 'GelX Removal', price: 20, duration: 30, description: 'Safe removal of existing GelX' }
+            ],
+            'builder-gel': [
+                { name: 'Solid Colour', price: 70, duration: 100, description: 'Classic single colour application' },
+                { name: 'Minimal Design', price: 85, duration: 120, description: 'Simple accents & minimal art' },
+                { name: 'Detailed Design', price: 105, duration: 150, description: 'Intricate patterns & complex art' },
+                { name: 'Full Custom Art', price: 130, duration: 180, description: 'Fully customized detailed artwork' },
+                { name: 'Builder Gel Removal', price: 25, duration: 40, description: 'Safe removal of existing builder gel' }
+            ]
+        };
+
+        let selectedServiceType = null;
+        let selectedDetail = null;
         let selectedTime = null;
         let uploadedFiles = [];
 
-        // Service selection
+        // Step 1: Service type selection
         document.querySelectorAll('.service-card').forEach(card => {
             card.addEventListener('click', function() {
                 document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
                 this.classList.add('selected');
-                selectedService = {
-                    name: this.querySelector('h3').textContent,
-                    price: this.dataset.price,
-                    duration: this.dataset.duration
-                };
-                updateSummary();
+                selectedServiceType = this.dataset.service;
+                
+                // Show detail section
+                setTimeout(() => {
+                    showDetailSection();
+                }, 300);
             });
+        });
+
+        function showDetailSection() {
+            document.getElementById('serviceSection').classList.add('hidden');
+            document.getElementById('detailSection').classList.remove('hidden');
+            
+            const title = selectedServiceType === 'gelx' ? 'GelX Styles' : 'Builder Gel Styles';
+            document.getElementById('detailTitle').textContent = title;
+            
+            const detailGrid = document.getElementById('detailGrid');
+            detailGrid.innerHTML = '';
+            
+            serviceDetails[selectedServiceType].forEach(detail => {
+                const card = document.createElement('div');
+                card.className = 'detail-card';
+                card.innerHTML = `
+                    <h4>${detail.name}</h4>
+                    <p class="detail-duration" style="color: #666; margin-bottom: 10px;">${detail.description}</p>
+                    <p class="detail-price">$${detail.price}</p>
+                    <p class="detail-duration">${detail.duration} Minutes</p>
+                `;
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.detail-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedDetail = detail;
+                    
+                    setTimeout(() => {
+                        showDateSection();
+                    }, 300);
+                });
+                detailGrid.appendChild(card);
+            });
+        }
+
+        function showDateSection() {
+            document.getElementById('detailSection').classList.add('hidden');
+            document.getElementById('dateSection').classList.remove('hidden');
+            document.getElementById('photoSection').classList.remove('hidden');
+            document.getElementById('contactSection').classList.remove('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+        }
+
+        // Back buttons
+        document.getElementById('backToService').addEventListener('click', () => {
+            document.getElementById('detailSection').classList.add('hidden');
+            document.getElementById('serviceSection').classList.remove('hidden');
+            selectedServiceType = null;
+        });
+
+        document.getElementById('backToDetail').addEventListener('click', () => {
+            document.getElementById('dateSection').classList.add('hidden');
+            document.getElementById('photoSection').classList.add('hidden');
+            document.getElementById('contactSection').classList.add('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('summary').classList.add('hidden');
+            document.getElementById('detailSection').classList.remove('hidden');
+            selectedDetail = null;
+            selectedTime = null;
         });
 
         // Time slot selection
@@ -554,11 +699,13 @@
             const date = document.getElementById('bookingDate').value;
             const summary = document.getElementById('summary');
             
-            if (selectedService && selectedTime && date) {
-                summary.style.display = 'block';
-                document.getElementById('summaryService').textContent = `Service: ${selectedService.name}`;
+            if (selectedDetail && selectedTime && date) {
+                summary.classList.remove('hidden');
+                const serviceTypeName = selectedServiceType === 'gelx' ? 'GelX' : 'Builder Gel';
+                document.getElementById('summaryService').textContent = `Service: ${serviceTypeName}`;
+                document.getElementById('summaryDetail').textContent = `Style: ${selectedDetail.name}`;
                 document.getElementById('summaryDateTime').textContent = `Date & Time: ${date} at ${selectedTime}`;
-                document.getElementById('summaryTotal').textContent = `Total: $${selectedService.price}`;
+                document.getElementById('summaryTotal').textContent = `Total: $${selectedDetail.price}`;
             }
         }
 
@@ -566,13 +713,14 @@
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            if (!selectedService || !selectedTime) {
-                alert('Please select a service and time slot');
+            if (!selectedDetail || !selectedTime) {
+                alert('Please complete all booking steps');
                 return;
             }
 
             const bookingData = {
-                service: selectedService,
+                serviceType: selectedServiceType,
+                detail: selectedDetail,
                 date: document.getElementById('bookingDate').value,
                 time: selectedTime,
                 name: document.getElementById('clientName').value,
@@ -582,16 +730,10 @@
             };
 
             console.log('Booking submitted:', bookingData);
-            alert(`BOOKING CONFIRMED\n\nService: ${bookingData.service.name}\nDate: ${bookingData.date}\nTime: ${bookingData.time}\n\nWe'll text you at ${bookingData.phone} to confirm your appointment.`);
+            alert(`BOOKING CONFIRMED\n\nService: ${selectedServiceType === 'gelx' ? 'GelX' : 'Builder Gel'}\nStyle: ${bookingData.detail.name}\nDate: ${bookingData.date}\nTime: ${bookingData.time}\nTotal: $${bookingData.detail.price}\n\nWe'll text you at ${bookingData.phone} to confirm your appointment.`);
             
             // Reset form
-            this.reset();
-            document.querySelectorAll('.service-card, .time-slot').forEach(el => el.classList.remove('selected'));
-            document.getElementById('previewContainer').innerHTML = '';
-            document.getElementById('summary').style.display = 'none';
-            selectedService = null;
-            selectedTime = null;
-            uploadedFiles = [];
+            location.reload();
         });
 
         // Set minimum date to today
