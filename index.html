@@ -540,7 +540,7 @@
         }
 
         .error-message {
-            background: #ff0000;
+            background: #000000;
             color: #fff;
             padding: 15px;
             margin: 20px 0;
@@ -549,7 +549,7 @@
         }
 
         .success-message {
-            background: #00ff00;
+            background: #000000;
             color: #000;
             padding: 30px;
             margin: 20px 0;
@@ -596,11 +596,11 @@
 </head>
 <body>
     <div class="top-banner">
-        BOOK YOUR APPOINTMENT TODAY ✦ CUSTOM NAIL ART ✦ WALK-INS WELCOME
+        BOOK YOUR APPOINTMENT TODAY ✦ CUSTOM NAIL ART
     </div>
 
     <div class="header">
-        <div class="logo">nail studio</div>
+        <div class="logo">Enshantè</div>
         <div class="nav">
             <a href="#services">services</a>
             <a href="#booking">book</a>
@@ -610,8 +610,8 @@
 
     <div class="hero">
         <div>
-            <div class="hero-text">Book Your<br>Appointment</div>
-            <div class="hero-subtext">all nail styles welcome</div>
+            <div class="hero-text">Enshantè</div>
+            <div class="hero-subtext">new clients welcome</div>
         </div>
     </div>
 
@@ -627,15 +627,15 @@
 
             <!-- Step 1: Choose Service Type -->
             <div class="section hidden" id="serviceSection">
-                <h2 class="section-title">Choose Your Service</h2>
+                <h2 class="section-title">Services</h2>
                 <div class="service-grid">
                     <div class="service-card" data-service="gelx">
                         <h3>GelX</h3>
-                        <p class="service-description">Soft gel extensions with a natural feel. Long-lasting, flexible, and perfect for any nail art design.</p>
+                        <p class="service-description">Soft gel extensions.</p>
                     </div>
                     <div class="service-card" data-service="builder-gel">
                         <h3>Builder Gel</h3>
-                        <p class="service-description">Strong, durable gel for structure and length. Ideal for those who need extra strength and durability.</p>
+                        <p class="service-description">Natural nail overlay.</p>
                     </div>
                 </div>
             </div>
@@ -647,10 +647,10 @@
                 <div class="detail-grid" id="detailGrid"></div>
                 
                 <div id="photoUploadSection" class="hidden">
-                    <h3 style="font-size: 1.5em; margin: 40px 0 20px 0; text-transform: uppercase; letter-spacing: 2px;">Upload Reference Photos (Optional)</h3>
+                    <h3 style="font-size: 1.5em; margin: 40px 0 20px 0; text-transform: uppercase; letter-spacing: 2px;">Upload Reference Photos</h3>
                     <div class="file-upload" id="fileUpload">
                         <div class="upload-icon">📸</div>
-                        <p class="upload-text">Upload inspiration photos for this style</p>
+                        <p class="upload-text">Upload inspiration photos for your nails</p>
                         <input type="file" id="fileInput" accept="image/*" multiple>
                     </div>
                     <div class="preview-container" id="previewContainer"></div>
@@ -734,15 +734,15 @@
             'gelx': [
                 { name: 'Solid Colour', price: 6000, duration: 90, description: 'Classic single colour application' },
                 { name: 'Minimal Design', price: 7500, duration: 105, description: 'Simple accents & minimal art' },
-                { name: 'Detailed Design', price: 9500, duration: 135, description: 'Intricate patterns & complex art' },
-                { name: 'Full Custom Art', price: 12000, duration: 165, description: 'Fully customized detailed artwork' },
+                { name: 'Detailed Design', price: 9500, duration: 135, description: 'Intricate patterns' },
+                { name: 'Full Detail Art', price: 12000, duration: 165, description: 'Full complex art' },
                 { name: 'GelX Removal', price: 2000, duration: 30, description: 'Safe removal of existing GelX' }
             ],
             'builder-gel': [
                 { name: 'Solid Colour', price: 7000, duration: 100, description: 'Classic single colour application' },
                 { name: 'Minimal Design', price: 8500, duration: 120, description: 'Simple accents & minimal art' },
-                { name: 'Detailed Design', price: 10500, duration: 150, description: 'Intricate patterns & complex art' },
-                { name: 'Full Custom Art', price: 13000, duration: 180, description: 'Fully customized detailed artwork' },
+                { name: 'Detailed Design', price: 10500, duration: 150, description: 'Intricate patterns' },
+                { name: 'Full Detail Art', price: 13000, duration: 180, description: 'Fully complex art' },
                 { name: 'Builder Gel Removal', price: 2500, duration: 40, description: 'Safe removal of existing builder gel' }
             ]
         };
